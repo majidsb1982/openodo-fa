@@ -1,0 +1,61 @@
+name: Build Debug APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Install SDK platforms
+        run: |
+          set -eux
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager \
+            "platforms;android-37" \
+            "platforms;android-36" \
+            "platforms;android-35" \
+            "build-tools;35.0.0" \
+            "build-tools;36.0.0" \
+            "platform-tools" \
+            || true
+          sdkmanager --list_installed | head -50
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build debug APK
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8"
+        run: ./gradlew --no-daemon --stacktrace :app:assembleDebug
+
+      - name: List APK output
+        if: always()
+        run: |
+          find app/build/outputs -type f -name "*.apk" -ls || true
+          ls -la app/build/outputs/apk/debug/ || true
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: openodo-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
