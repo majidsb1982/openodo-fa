@@ -7,24 +7,24 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "21"
           cache: gradle
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
-      - name: Accept licenses and install platforms
+      - name: Install SDK platforms
         run: |
           set -eux
           yes | sdkmanager --licenses >/dev/null || true
@@ -36,7 +36,7 @@ jobs:
             "build-tools;36.0.0" \
             "platform-tools" \
             || true
-          sdkmanager --list_installed | head -40
+          sdkmanager --list_installed | head -50
 
       - name: Make gradlew executable
         run: chmod +x gradlew
