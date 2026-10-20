@@ -1158,12 +1158,13 @@ private fun RemindersScreen(state: ShellState, vm: AppViewModel, modifier: Modif
             item {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(filter == null, { filter = null }, label = { Text("همه (${rs.size})") })
-                    listOf(ReminderState.OVERDUE, ReminderState.DUE_SOON, ReminderState.OK, ReminderState.INACTIVE).forEach { st ->
+                    listOf(ReminderState.OVERDUE, ReminderState.DUE_SOON, ReminderState.OK, ReminderState.INACTIVE, ReminderState.UNANCHORED).forEach { st ->
                         FilterChip(filter == st, { filter = st }, label = { Text("${when (st) {
                             ReminderState.OVERDUE -> "تأخیر"
                             ReminderState.DUE_SOON -> "به‌زودی"
                             ReminderState.OK -> "به‌موقع"
                             ReminderState.INACTIVE -> "غیرفعال"
+                            ReminderState.UNANCHORED -> "بدون لنگر"
                         }} (${statuses.count { it.second.state == st }})") })
                     }
                 }
@@ -1262,6 +1263,7 @@ private fun ReminderCard(r: Reminder, s: ReminderStatus, name: String, v: Vehicl
                     ReminderState.DUE_SOON -> "به‌زودی"
                     ReminderState.OK -> "به‌موقع"
                     ReminderState.INACTIVE -> "غیرفعال"
+                    ReminderState.UNANCHORED -> "بدون لنگر"
                 }, if (overdue) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer, if (overdue) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer)
             }
             Text(intervalText, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
