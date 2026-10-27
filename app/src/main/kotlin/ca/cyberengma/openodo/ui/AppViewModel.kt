@@ -34,6 +34,7 @@ import ca.cyberengma.openodo.core.portability.importer.DrivvoImporter
 import ca.cyberengma.openodo.core.portability.importer.FuelioImporter
 import ca.cyberengma.openodo.core.portability.csv.CsvExport
 import java.io.StringWriter
+import ca.cyberengma.openodo.ui.util.NumberFormatPrefs
 
 data class ShellState(
     val vehicles: List<Vehicle> = emptyList(),
@@ -86,6 +87,29 @@ class AppViewModel @Inject constructor(
     fun setThemeMode(mode: ThemeMode) {
         selectedTheme.value = mode
         preferences.edit().putString("theme_mode", mode.name).apply()
+    }
+
+    private val selectedNumberFormat = MutableStateFlow(loadNumberFormat())
+    val numberFormat: StateFlow<NumberFormatPrefs> = selectedNumberFormat
+
+    private fun loadNumberFormat(): NumberFormatPrefs {
+        val p = NumberFormatPrefs(
+            usePersianDigits = preferences.getBoolean("num_persian_digits", true),
+            thousandsSeparator = preferences.getString("num_thousands", "٬") ?: "٬",
+            decimalSeparator = preferences.getString("num_decimal", "٫") ?: "٫",
+        )
+        VehicleValueFormatter.prefs = p
+        return p
+    }
+
+    fun setNumberFormat(prefs: NumberFormatPrefs) {
+        selectedNumberFormat.value = prefs
+        VehicleValueFormatter.prefs = prefs
+        preferences.edit()
+            .putBoolean("num_persian_digits", prefs.usePersianDigits)
+            .putString("num_thousands", prefs.thousandsSeparator)
+            .putString("num_decimal", prefs.decimalSeparator)
+            .apply()
     }
 
     fun save(vehicle: Vehicle) {
