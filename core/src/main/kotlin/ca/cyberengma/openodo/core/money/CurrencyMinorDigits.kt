@@ -5,11 +5,15 @@ object CurrencyMinorDigits {
     private val table = mapOf(
         "JPY" to 0,
         "KRW" to 0,
+        "IRR" to 0,
+        "IRT" to 0,
+        "VND" to 0,
         "KWD" to 3,
         "BHD" to 3,
+        "OMR" to 3,
     )
 
     private const val DEFAULT = 2
 
-    fun of(code: String): Int = table[code] ?: DEFAULT
+    fun of(code: String): Int = table[code.uppercase()] ?: DEFAULT
 }
